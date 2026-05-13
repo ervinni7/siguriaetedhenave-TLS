@@ -62,9 +62,8 @@ class TLSClient:
         self.session_key  = None
         self.cipher_suite = None
 
-    
     #  Pika e Hyrjes
-        def connect(self) -> None:
+    def connect(self) -> None:
         print(SEP2)
         print("    SSL/TLS Handshake Simulation — CLIENT")
         print(SEP2)
