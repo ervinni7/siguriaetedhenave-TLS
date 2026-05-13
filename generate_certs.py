@@ -1,14 +1,14 @@
 """
-generate_certs.py - PKI Setup for the SSL/TLS Handshake Simulation
+generate_certs.py - Konfigurimi PKI për simulimin e SSL/TLS Handshake
 
-Generates:
-  1. Root CA  (self-signed, RSA-2048)
-  2. Server certificate  (signed by CA, CN=localhost)
-  3. Client certificate  (signed by CA, CN=client.local)
+Gjeneron:
+  1. Root CA (i vetë-nënshkruar, RSA-2048)
+  2. Certifikatë serveri (e nënshkruar nga CA, CN=localhost)
+  3. Certifikatë klienti (e nënshkruar nga CA, CN=client.local)
 
-All files are saved under the  certs/  directory.
+Të gjithë skedarët ruhen në direktorinë  certs/ .
 
-Usage:
+Përdorimi:
     python generate_certs.py
 """
 
@@ -26,11 +26,11 @@ PUBLIC_EXPONENT = 65537
 
 
 # ─────────────────────────────────────────────────────────────
-#  Public API
+#  API Publike
 # ─────────────────────────────────────────────────────────────
 
 def generate_all() -> None:
-    """Generate CA, server, and client certificates and save them to disk."""
+    """Gjeneron certifikatat e CA, serverit dhe klientit dhe i ruan në disk."""
     os.makedirs(CERTS_DIR, exist_ok=True)
 
     _banner("Generating Root Certificate Authority (CA)")
@@ -68,29 +68,29 @@ def generate_all() -> None:
 
 
 def load_key(path: str):
-    """Load a PEM-encoded private key from file."""
+    """Ngarkon një çelës privat të koduar në PEM nga skedari."""
     with open(path, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password=None)
 
 
 def load_cert(path: str):
-    """Load a PEM-encoded X.509 certificate from file."""
+    """Ngarkon një certifikatë X.509 të koduar në PEM nga skedari."""
     with open(path, "rb") as f:
         return x509.load_pem_x509_certificate(f.read())
 
 
 def certs_exist() -> bool:
-    """Return True if all certificate files already exist."""
+    """Kthen True nëse të gjithë skedarët e certifikatave ekzistojnë tashmë."""
     files = ["ca.key", "ca.crt", "server.key", "server.crt", "client.key", "client.crt"]
     return all(os.path.exists(_path(f)) for f in files)
 
 
 # ─────────────────────────────────────────────────────────────
-#  Private Helpers
+#  Funksione Private Ndihmëse
 # ─────────────────────────────────────────────────────────────
 
 def _generate_ca():
-    """Create a self-signed Root CA certificate."""
+    """Krijon një certifikatë Root CA të vetë-nënshkruar."""
     key = rsa.generate_private_key(public_exponent=PUBLIC_EXPONENT, key_size=KEY_SIZE)
 
     name = x509.Name([
@@ -103,7 +103,7 @@ def _generate_ca():
     cert = (
         x509.CertificateBuilder()
         .subject_name(name)
-        .issuer_name(name)           # self-signed
+        .issuer_name(name)           # i vetë-nënshkruar
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
         .not_valid_before(datetime.datetime.utcnow())
@@ -132,8 +132,8 @@ def _generate_ca():
 
 def _generate_entity_cert(ca_key, ca_cert, common_name: str, org: str, role: str):
     """
-    Generate an end-entity certificate signed by the given CA.
-    role must be 'server' or 'client'.
+    Gjeneron një certifikatë end-entity të nënshkruar nga CA-ja e dhënë.
+    role duhet të jetë 'server' ose 'client'.
     """
     key = rsa.generate_private_key(public_exponent=PUBLIC_EXPONENT, key_size=KEY_SIZE)
 
@@ -166,7 +166,7 @@ def _generate_entity_cert(ca_key, ca_cert, common_name: str, org: str, role: str
         )
     )
 
-    # Server gets a SubjectAlternativeName for localhost
+    # Serveri merr një SubjectAlternativeName për localhost
     if role == "server":
         builder = builder.add_extension(
             x509.SubjectAlternativeName([x509.DNSName("localhost")]),

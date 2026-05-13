@@ -1,6 +1,6 @@
 """
-tls_common.py - Shared utilities for the SSL/TLS Handshake Simulation
-Includes: message types, socket protocol, crypto helpers, logging setup
+tls_common.py - Funksione të përbashkëta për simulimin e SSL/TLS Handshake
+Përfshin: tipet e mesazheve, protokollin e socket-it, ndihmës kriptografikë, konfigurimin e logimit
 """
 
 import json
@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 
 # ─────────────────────────────────────────────
-#  TLS Handshake Message Types
+#  Tipet e Mesazheve të TLS Handshake
 # ─────────────────────────────────────────────
 CLIENT_HELLO       = "CLIENT_HELLO"
 SERVER_HELLO       = "SERVER_HELLO"
@@ -31,7 +31,7 @@ APPLICATION_DATA   = "APPLICATION_DATA"
 ALERT              = "ALERT"
 
 # ─────────────────────────────────────────────
-#  Supported Cipher Suites (ordered by preference)
+#  Cipher Suites të Mbështetura (sipas preferencës)
 # ─────────────────────────────────────────────
 CIPHER_SUITES = [
     "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
@@ -41,17 +41,17 @@ CIPHER_SUITES = [
 TLS_VERSION = "TLS 1.3 (simulation)"
 
 # ─────────────────────────────────────────────
-#  Logger Setup
+#  Konfigurimi i Logger-it
 # ─────────────────────────────────────────────
 def setup_logger(name: str, level=logging.DEBUG) -> logging.Logger:
     """
-    Configure a logger that writes to both console and a .log file.
-    Console shows INFO+; file captures everything (DEBUG+).
+    Konfiguron një logger që shkruan si në konsolë, ashtu edhe në një skedar .log.
+    Konsola shfaq INFO+; skedari kap gjithçka (DEBUG+).
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    # Avoid duplicate handlers on re-import
+    # Shmang handler-at e dyfishtë gjatë ri-importit
     if logger.handlers:
         return logger
 
@@ -60,7 +60,7 @@ def setup_logger(name: str, level=logging.DEBUG) -> logging.Logger:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # File handler – captures all debug details
+    # File handler – kap të gjitha detajet e debug-ut
     fh = logging.FileHandler(f"{name.lower()}.log", mode="a", encoding="utf-8")
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt)
@@ -70,12 +70,12 @@ def setup_logger(name: str, level=logging.DEBUG) -> logging.Logger:
 
 
 # ─────────────────────────────────────────────
-#  Length-Prefixed JSON Socket Protocol
+#  Protokolli Socket JSON me Prefiks-Gjatësi
 # ─────────────────────────────────────────────
 def send_message(sock: socket.socket, msg_type: str, payload: dict = None) -> None:
     """
-    Send a TLS simulation message over a TCP socket.
-    Wire format: [4-byte big-endian length][UTF-8 JSON body]
+    Dërgon një mesazh të simulimit TLS përmes një socket-i TCP.
+    Formati i tubacionit: [4-bajt big-endian gjatësi][trup JSON UTF-8]
     """
     envelope = {
         "type": msg_type,
@@ -89,8 +89,8 @@ def send_message(sock: socket.socket, msg_type: str, payload: dict = None) -> No
 
 def recv_message(sock: socket.socket) -> dict:
     """
-    Receive a length-prefixed JSON message from the socket.
-    Raises ConnectionError if the connection is closed mid-read.
+    Pranon një mesazh JSON me prefiks-gjatësi nga socket-i.
+    Ngre ConnectionError nëse lidhja mbyllet gjatë leximit.
     """
     raw_len = _recv_exact(sock, 4)
     if not raw_len:
@@ -105,7 +105,7 @@ def recv_message(sock: socket.socket) -> dict:
 
 
 def _recv_exact(sock: socket.socket, n: int) -> bytes:
-    """Read exactly n bytes; returns b'' on clean close."""
+    """Lexon saktësisht n bajte; kthen b'' në mbyllje të pastër."""
     buf = b""
     while len(buf) < n:
         chunk = sock.recv(n - len(buf))
@@ -116,32 +116,32 @@ def _recv_exact(sock: socket.socket, n: int) -> bytes:
 
 
 # ─────────────────────────────────────────────
-#  Base64 Helpers
+#  Ndihmës Base64
 # ─────────────────────────────────────────────
 def b64_encode(data) -> str:
-    """Encode bytes (or str) as URL-safe base64 string."""
+    """Kodon bajte (ose string) si string base64 URL-safe."""
     if isinstance(data, str):
         data = data.encode("utf-8")
     return base64.b64encode(data).decode("ascii")
 
 
 def b64_decode(data: str) -> bytes:
-    """Decode base64 string to bytes."""
+    """Dekodon një string base64 në bajte."""
     return base64.b64decode(data)
 
 
 # ─────────────────────────────────────────────
-#  Misc Helpers
+#  Ndihmës të Ndryshëm
 # ─────────────────────────────────────────────
 def sha256_hex(data) -> str:
-    """Return SHA-256 hex digest of data (bytes or str)."""
+    """Kthen digjestin SHA-256 në hex të të dhënave (bajte ose string)."""
     if isinstance(data, str):
         data = data.encode("utf-8")
     return hashlib.sha256(data).hexdigest()
 
 
 def cert_not_before(cert):
-    """Return timezone-aware not_valid_before datetime (handles old & new API)."""
+    """Kthen datetime not_valid_before me timezone (trajton API të vjetër & të ri)."""
     try:
         return cert.not_valid_before_utc
     except AttributeError:
@@ -149,7 +149,7 @@ def cert_not_before(cert):
 
 
 def cert_not_after(cert):
-    """Return timezone-aware not_valid_after datetime (handles old & new API)."""
+    """Kthen datetime not_valid_after me timezone (trajton API të vjetër & të ri)."""
     try:
         return cert.not_valid_after_utc
     except AttributeError:
